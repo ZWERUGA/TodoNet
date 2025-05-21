@@ -46,5 +46,25 @@ namespace Todo.Controllers
                 todoModel.ToTodoDtoFromTodoModel()
             );
         }
+
+        [HttpPut("{id}")]
+        public IActionResult Update([FromRoute] int id, [FromBody] UpdateTodoDto updateTodoDto)
+        {
+            var todoModel = _context.Todos.Find(id);
+
+            if (todoModel is null)
+            {
+                return NotFound();
+            }
+
+            todoModel.Title = updateTodoDto.Title;
+            todoModel.Text = updateTodoDto.Text;
+            todoModel.IsCompleted = updateTodoDto.IsCompleted;
+            todoModel.IsFavorite = updateTodoDto.IsFavorite;
+
+            _context.SaveChanges();
+
+            return Ok(todoModel.ToTodoDtoFromTodoModel());
+        }
     }
 }
