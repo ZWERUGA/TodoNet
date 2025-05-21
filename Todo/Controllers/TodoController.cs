@@ -66,5 +66,21 @@ namespace Todo.Controllers
 
             return Ok(todoModel.ToTodoDtoFromTodoModel());
         }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete([FromRoute] int id)
+        {
+            var todoModel = _context.Todos.Find(id);
+
+            if (todoModel is null)
+            {
+                return NotFound();
+            }
+
+            _context.Todos.Remove(todoModel);
+            _context.SaveChanges();
+
+            return NoContent();
+        }
     }
 }
