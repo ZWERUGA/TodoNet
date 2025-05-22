@@ -21,7 +21,7 @@ namespace Todo.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Todo.Models.TodoModel", b =>
+            modelBuilder.Entity("Todo.Models.Todo", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
