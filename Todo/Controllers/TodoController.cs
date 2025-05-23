@@ -20,7 +20,7 @@ namespace Todo.Controllers
             return Ok(todosDto);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
             var todo = await _todoRepo.GetByIdAsync(id);
@@ -47,7 +47,7 @@ namespace Todo.Controllers
             );
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(
             [FromRoute] int id,
             [FromBody] UpdateTodoDto updateTodoDto
@@ -63,7 +63,7 @@ namespace Todo.Controllers
             return Ok(todoModel.ToTodoDtoFromTodoModel());
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             var todoModel = await _todoRepo.DeleteAsync(id);
