@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Todo.Dtos.Todo;
+using Todo.Helpers;
 using Todo.Interfaces;
 using Todo.Mappers;
 
@@ -12,9 +13,9 @@ namespace Todo.Controllers
         private readonly ITodoRepository _todoRepo = todoRepo;
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] QueryObject query)
         {
-            var todos = await _todoRepo.GetAllAsync();
+            var todos = await _todoRepo.GetAllAsync(query);
             var todosDto = todos.Select(t => t.ToTodoDtoFromTodoModel());
 
             return Ok(todosDto);
