@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Todo.Data;
 using Todo.Dtos.Todo;
+using Todo.Helpers;
 using Todo.Interfaces;
 using Todo.Models;
 
@@ -10,9 +11,23 @@ namespace Todo.Repository
     {
         private readonly TodoDbContext _context = context;
 
-        public async Task<List<TodoModel>> GetAllAsync()
+        public async Task<List<TodoModel>> GetAllAsync(QueryObject query)
         {
-            return await _context.Todos.ToListAsync();
+            var todos = _context.Todos.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(query.Title))
+                todos = todos.Where(t => EF.Functions.ILike(t.Title, $"%{query.Title}%"));
+
+            if (!string.IsNullOrWhiteSpace(query.Text))
+                todos = todos.Where(t => EF.Functions.ILike(t.Text, $"%{query.Text}%"));
+
+            if (query.IsCompleted.HasValue)
+                todos = todos.Where(t => t.IsCompleted == query.IsCompleted.Value);
+
+            if (query.IsFavorite.HasValue)
+                todos = todos.Where(t => t.IsFavorite == query.IsFavorite.Value);
+
+            return await todos.ToListAsync();
         }
 
         public async Task<TodoModel?> GetByIdAsync(int todoId)
@@ -35,10 +50,17 @@ namespace Todo.Repository
             if (existingTodo is null)
                 return null;
 
-            existingTodo.Title = updateTodoDto.Title;
-            existingTodo.Text = updateTodoDto.Text;
-            existingTodo.IsCompleted = updateTodoDto.IsCompleted;
-            existingTodo.IsFavorite = updateTodoDto.IsFavorite;
+            if (updateTodoDto.Title is not null)
+                existingTodo.Title = updateTodoDto.Title;
+
+            if (updateTodoDto.Text is not null)
+                existingTodo.Text = updateTodoDto.Text;
+
+            if (updateTodoDto.IsCompleted.HasValue)
+                existingTodo.IsCompleted = updateTodoDto.IsCompleted.Value;
+
+            if (updateTodoDto.IsFavorite.HasValue)
+                existingTodo.IsFavorite = updateTodoDto.IsFavorite.Value;
 
             await _context.SaveChangesAsync();
 
