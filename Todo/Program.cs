@@ -7,6 +7,7 @@ using Todo.Data;
 using Todo.Interfaces;
 using Todo.Models;
 using Todo.Repository;
+using Todo.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,16 @@ builder.Services.AddControllers();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+builder
+    .Services.AddControllers()
+    .AddNewtonsoftJson(options =>
+    {
+        options.SerializerSettings.ReferenceLoopHandling = Newtonsoft
+            .Json
+            .ReferenceLoopHandling
+            .Ignore;
+    });
 
 builder.Services.AddDbContext<TodoDbContext>(options =>
 {
@@ -69,6 +80,7 @@ builder
 
 // Interfaces.
 builder.Services.AddScoped<ITodoRepository, TodoRepository>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 var app = builder.Build();
 
