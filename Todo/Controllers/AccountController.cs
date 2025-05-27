@@ -5,15 +5,18 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Todo.Dtos.Account;
+using Todo.Interfaces;
 using Todo.Models;
 
 namespace Todo.Controllers
 {
     [ApiController]
     [Route("api/account")]
-    public class AccountController(UserManager<AppUser> userManager) : ControllerBase
+    public class AccountController(UserManager<AppUser> userManager, ITokenService tokenService)
+        : ControllerBase
     {
         private readonly UserManager<AppUser> _userManager = userManager;
+        private readonly ITokenService _tokenService = tokenService;
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
@@ -36,7 +39,14 @@ namespace Todo.Controllers
                     var roleResult = await _userManager.AddToRoleAsync(appUser, "User");
 
                     if (roleResult.Succeeded)
-                        return Ok("Пользователь создан.");
+                        return Ok(
+                            new NewUserDto
+                            {
+                                UserName = appUser.UserName,
+                                Email = appUser.Email,
+                                Token = _tokenService.CreateToken(appUser),
+                            }
+                        );
                     else
                         return StatusCode(500, roleResult.Errors);
                 }
