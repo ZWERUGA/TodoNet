@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Todo.Dtos.Todo;
 using Todo.Helpers;
 using Todo.Interfaces;
@@ -13,6 +14,7 @@ namespace Todo.Controllers
         private readonly ITodoRepository _todoRepo = todoRepo;
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetAll([FromQuery] QueryObject query)
         {
             var todos = await _todoRepo.GetAllAsync(query);
