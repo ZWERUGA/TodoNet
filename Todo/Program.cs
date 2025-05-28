@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using NSwag;
+using NSwag.Generation.Processors.Security;
 using Scalar.AspNetCore;
 using Todo.Data;
 using Todo.Interfaces;
@@ -16,7 +18,26 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApiDocument(doc =>
+{
+    doc.AddSecurity(
+        "bearer",
+        [],
+        new OpenApiSecurityScheme
+        {
+            In = OpenApiSecurityApiKeyLocation.Header,
+            Description = "Введите правильный токен.",
+            Name = "Авторизация",
+            Type = OpenApiSecuritySchemeType.Http,
+            BearerFormat = "JWT",
+            Scheme = "Bearer",
+        }
+    );
+
+    doc.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("bearer"));
+});
+
+builder.Services.AddOpenApi("Todo API");
 
 builder
     .Services.AddControllers()
@@ -87,8 +108,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
-    app.MapScalarApiReference();
+    app.UseOpenApi();
+    app.UseSwaggerUi();
 }
 
 app.UseHttpsRedirection();
