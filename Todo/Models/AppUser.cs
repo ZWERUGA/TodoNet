@@ -6,5 +6,8 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Todo.Models
 {
-    public class AppUser : IdentityUser { }
+    public class AppUser : IdentityUser
+    {
+        public List<TodoModel> Todos { get; set; } = [];
+    }
 }
