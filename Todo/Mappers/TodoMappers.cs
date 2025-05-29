@@ -17,7 +17,10 @@ namespace Todo.Mappers
             };
         }
 
-        public static TodoModel ToTodoModelFromCreateTodoDto(this CreateTodoDto createTodoDto)
+        public static TodoModel ToTodoModelFromCreateTodoDto(
+            this CreateTodoDto createTodoDto,
+            string appUserId
+        )
         {
             return new TodoModel
             {
@@ -25,6 +28,7 @@ namespace Todo.Mappers
                 Text = createTodoDto.Text,
                 IsCompleted = false,
                 IsFavorite = false,
+                AppUserId = appUserId,
             };
         }
     }
