@@ -24,6 +24,7 @@ namespace Todo.Controllers
         }
 
         [HttpGet("{id:int}")]
+        [Authorize]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
             var todo = await _todoRepo.GetByIdAsync(id);
@@ -37,6 +38,7 @@ namespace Todo.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> Create([FromBody] CreateTodoDto createTodoDto)
         {
             var todoModel = createTodoDto.ToTodoModelFromCreateTodoDto();
@@ -51,6 +53,7 @@ namespace Todo.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [Authorize]
         public async Task<IActionResult> Update(
             [FromRoute] int id,
             [FromBody] UpdateTodoDto updateTodoDto
@@ -67,6 +70,7 @@ namespace Todo.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [Authorize]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             var todoModel = await _todoRepo.DeleteAsync(id);
