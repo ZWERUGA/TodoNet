@@ -28,6 +28,14 @@ namespace Todo.Data
             ];
 
             builder.Entity<IdentityRole>().HasData(roles);
+
+            builder
+                .Entity<TodoModel>()
+                .HasOne(e => e.AppUser)
+                .WithMany(e => e.Todos)
+                .HasForeignKey(e => e.AppUserId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
         }
 
         public DbSet<TodoModel> Todos { get; set; }
