@@ -11,9 +11,9 @@ namespace Todo.Repository
     {
         private readonly TodoDbContext _context = context;
 
-        public async Task<List<TodoModel>> GetAllAsync(QueryObject query)
+        public async Task<List<TodoModel>> GetAllAsync(QueryObject query, string appUserId)
         {
-            var todos = _context.Todos.AsQueryable();
+            var todos = _context.Todos.Where(u => u.AppUserId == appUserId).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(query.Title))
                 todos = todos.Where(t => EF.Functions.ILike(t.Title, $"%{query.Title}%"));
