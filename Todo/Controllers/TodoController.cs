@@ -1,36 +1,29 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Todo.Dtos.Todo;
-using Todo.Extensions;
 using Todo.Helpers;
 using Todo.Interfaces;
 using Todo.Mappers;
-using Todo.Models;
+using Todo.Services;
 
 namespace Todo.Controllers
 {
     [Route("api/todos")]
     [ApiController]
-    public class TodoController(ITodoRepository todoRepo, UserManager<AppUser> userManager)
-        : ControllerBase
+    public class TodoController(ITodoRepository todoRepo, UserService userService) : ControllerBase
     {
         private readonly ITodoRepository _todoRepo = todoRepo;
-        private readonly UserManager<AppUser> _userManager = userManager;
+        private readonly UserService _userService = userService;
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetAll([FromQuery] QueryObject query)
+        public async Task<ActionResult<IEnumerable<TodoDto>>> GetAll([FromQuery] QueryObject query)
         {
-            var userName = User.GetUsername();
-            if (userName is null)
-                return Unauthorized("Пользователь не найден.");
+            var (appUser, error) = await _userService.GetCurrentUserAsync(User);
+            if (error is not null)
+                return Unauthorized(error);
 
-            var appUser = await _userManager.FindByNameAsync(userName);
-            if (appUser is null)
-                return Unauthorized("Пользователь не найден.");
-
-            var todos = await _todoRepo.GetAllAsync(query, appUser.Id);
+            var todos = await _todoRepo.GetAllAsync(query, appUser!.Id);
             var todosDto = todos.Select(t => t.ToTodoDtoFromTodoModel());
 
             return Ok(todosDto);
@@ -38,9 +31,13 @@ namespace Todo.Controllers
 
         [HttpGet("{id:int}")]
         [Authorize]
-        public async Task<IActionResult> GetById([FromRoute] int id)
+        public async Task<ActionResult<TodoDto>> GetById([FromRoute] int id)
         {
-            var todo = await _todoRepo.GetByIdAsync(id);
+            var (appUser, error) = await _userService.GetCurrentUserAsync(User);
+            if (error is not null || appUser is null)
+                return Unauthorized(error?.ToString() ?? "Пользователь не найден");
+
+            var todo = await _todoRepo.GetByIdAsync(id, appUser.Id);
 
             if (todo is null)
             {
@@ -54,13 +51,9 @@ namespace Todo.Controllers
         [Authorize]
         public async Task<IActionResult> Create([FromBody] CreateTodoDto createTodoDto)
         {
-            var username = User.GetUsername();
-            if (username is null)
-                return Unauthorized("Для создания задачи необходимо войти в систему.");
-
-            var appUser = await _userManager.FindByNameAsync(username);
-            if (appUser is null)
-                return Unauthorized("Пользователь не найден.");
+            var (appUser, error) = await _userService.GetCurrentUserAsync(User);
+            if (error is not null || appUser is null)
+                return Unauthorized(error?.ToString() ?? "Пользователь не найден");
 
             var todoModel = createTodoDto.ToTodoModelFromCreateTodoDto(appUser.Id);
 
@@ -80,7 +73,11 @@ namespace Todo.Controllers
             [FromBody] UpdateTodoDto updateTodoDto
         )
         {
-            var todoModel = await _todoRepo.UpdateAsync(id, updateTodoDto);
+            var (appUser, error) = await _userService.GetCurrentUserAsync(User);
+            if (error is not null || appUser is null)
+                return Unauthorized(error?.ToString() ?? "Пользователь не найден");
+
+            var todoModel = await _todoRepo.UpdateAsync(id, updateTodoDto, appUser.Id);
 
             if (todoModel is null)
             {
@@ -94,7 +91,11 @@ namespace Todo.Controllers
         [Authorize]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            var todoModel = await _todoRepo.DeleteAsync(id);
+            var (appUser, error) = await _userService.GetCurrentUserAsync(User);
+            if (error is not null || appUser is null)
+                return Unauthorized(error?.ToString() ?? "Пользователь не найден");
+
+            var todoModel = await _todoRepo.DeleteAsync(id, appUser.Id);
 
             if (todoModel is null)
             {
