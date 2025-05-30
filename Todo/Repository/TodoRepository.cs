@@ -13,7 +13,7 @@ namespace Todo.Repository
 
         public async Task<List<TodoModel>> GetAllAsync(QueryObject query, string appUserId)
         {
-            var todos = _context.Todos.Where(u => u.AppUserId == appUserId).AsQueryable();
+            var todos = _context.Todos.Where(u => u.AppUserId == appUserId);
 
             if (!string.IsNullOrWhiteSpace(query.Title))
                 todos = todos.Where(t => EF.Functions.ILike(t.Title, $"%{query.Title}%"));
@@ -30,9 +30,10 @@ namespace Todo.Repository
             return await todos.ToListAsync();
         }
 
-        public async Task<TodoModel?> GetByIdAsync(int todoId)
+        public async Task<TodoModel?> GetByIdAsync(int todoId, string appUserId)
         {
-            return await _context.Todos.FindAsync(todoId);
+            var todos = _context.Todos.Where(u => u.AppUserId == appUserId);
+            return await todos.FirstOrDefaultAsync(t => t.Id == todoId);
         }
 
         public async Task<TodoModel> CreateAsync(TodoModel todoModel)
@@ -43,9 +44,14 @@ namespace Todo.Repository
             return todoModel;
         }
 
-        public async Task<TodoModel?> UpdateAsync(int todoId, UpdateTodoDto updateTodoDto)
+        public async Task<TodoModel?> UpdateAsync(
+            int todoId,
+            UpdateTodoDto updateTodoDto,
+            string appUserId
+        )
         {
-            var existingTodo = await _context.Todos.FindAsync(todoId);
+            var todos = _context.Todos.Where(u => u.AppUserId == appUserId);
+            var existingTodo = await todos.FirstOrDefaultAsync(t => t.Id == todoId);
 
             if (existingTodo is null)
                 return null;
@@ -67,9 +73,10 @@ namespace Todo.Repository
             return existingTodo;
         }
 
-        public async Task<TodoModel?> DeleteAsync(int todoId)
+        public async Task<TodoModel?> DeleteAsync(int todoId, string appUserId)
         {
-            var existingTodo = await _context.Todos.FindAsync(todoId);
+            var todos = _context.Todos.Where(u => u.AppUserId == appUserId);
+            var existingTodo = await todos.FirstOrDefaultAsync(t => t.Id == todoId);
 
             if (existingTodo is null)
                 return null;
