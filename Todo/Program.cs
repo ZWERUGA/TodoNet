@@ -102,6 +102,7 @@ builder
 // Interfaces.
 builder.Services.AddScoped<ITodoRepository, TodoRepository>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped(sp => new UserService(sp.GetRequiredService<UserManager<AppUser>>()));
 
 var app = builder.Build();
 
