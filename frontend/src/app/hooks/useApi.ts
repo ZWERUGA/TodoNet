@@ -7,7 +7,7 @@ export function useApi() {
   const request = async <T>(url: string, options?: RequestInit): Promise<T> => {
     const token = localStorage.getItem("token");
 
-    if (!token) throw new Error("Необходимо войти в систему.");
+    // if (!token) throw new Error("Необходимо войти в систему.");
 
     const response = await fetch(url, {
       headers: {
@@ -16,6 +16,13 @@ export function useApi() {
       },
       ...options,
     });
+
+    if (response.status === 401) {
+      localStorage.removeItem("token");
+      // TODO: Изменить путь переадресации на account/login
+      window.location.href = "account/login";
+      throw new Error("Сессия иссекла. Пожалуйста, войдите заново.");
+    }
 
     if (!response.ok) throw new Error(await response.text());
 
