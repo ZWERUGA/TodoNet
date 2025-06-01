@@ -6,6 +6,7 @@ export const API_ENDPOINTS = {
   ACCOUNT: {
     REGISTER: `${API_BASE_URL}/${API_ACCOUNT_URL}/register`,
     LOGIN: `${API_BASE_URL}/${API_ACCOUNT_URL}/login`,
+    LOGOUT: `${API_BASE_URL}/${API_ACCOUNT_URL}/logout`,
   },
   TODO: {
     GET_ALL: `${API_BASE_URL}/${API_TODO_URL}`,
