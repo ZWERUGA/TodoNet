@@ -39,28 +39,58 @@ namespace Todo.Controllers
 
                 var createdUser = await _userManager.CreateAsync(appUser, registerDto.Password);
 
-                if (createdUser.Succeeded)
-                {
-                    var roleResult = await _userManager.AddToRoleAsync(appUser, "User");
-
-                    if (roleResult.Succeeded)
-                        return Ok(
-                            new NewUserDto
-                            {
-                                UserName = appUser.UserName,
-                                Email = appUser.Email,
-                                Token = _tokenService.CreateToken(appUser),
-                            }
-                        );
-                    else
-                        return StatusCode(500, roleResult.Errors);
-                }
-                else
+                if (!createdUser.Succeeded)
                     return StatusCode(500, createdUser.Errors);
+
+                var roleResult = await _userManager.AddToRoleAsync(appUser, "User");
+
+                if (!roleResult.Succeeded)
+                    return StatusCode(500, roleResult.Errors);
+
+                var token = _tokenService.CreateToken(appUser);
+                var csrfToken = Guid.NewGuid().ToString();
+
+                // JWT в HttpOnly cookie
+                Response.Cookies.Append(
+                    "jwt",
+                    token,
+                    new CookieOptions
+                    {
+                        HttpOnly = true,
+                        Secure = true,
+                        SameSite = SameSiteMode.Strict,
+                        Path = "/",
+                        MaxAge = TimeSpan.FromHours(1),
+                    }
+                );
+
+                // CSRF токен в доступной cookie
+                Response.Cookies.Append(
+                    "csrfToken",
+                    csrfToken,
+                    new CookieOptions
+                    {
+                        HttpOnly = false,
+                        Secure = true,
+                        SameSite = SameSiteMode.Strict,
+                        Path = "/",
+                        MaxAge = TimeSpan.FromHours(1),
+                    }
+                );
+
+                // Возврат строго типизированного DTO
+                return Ok(
+                    new NewUserDto
+                    {
+                        UserName = appUser.UserName!,
+                        Email = appUser.Email!,
+                        CsrfToken = csrfToken,
+                    }
+                );
             }
             catch (Exception e)
             {
-                return StatusCode(500, e);
+                return StatusCode(500, new { error = e.Message });
             }
         }
 
@@ -84,16 +114,57 @@ namespace Todo.Controllers
             );
 
             if (!result.Succeeded)
-                return Unauthorized("Пользователь не найден.");
+                return Unauthorized("Указаны неверные данные.");
+
+            var token = _tokenService.CreateToken(appUser);
+
+            var csrfToken = Guid.NewGuid().ToString();
+
+            // HttpOnly cookie для JWT
+            Response.Cookies.Append(
+                "jwt",
+                token,
+                new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Strict,
+                    Path = "/",
+                    MaxAge = TimeSpan.FromHours(1),
+                }
+            );
+
+            // Доступная из JS cookie для CSRF
+            Response.Cookies.Append(
+                "csrfToken",
+                csrfToken,
+                new CookieOptions
+                {
+                    HttpOnly = false,
+                    Secure = true,
+                    SameSite = SameSiteMode.Strict,
+                    Path = "/",
+                    MaxAge = TimeSpan.FromHours(1),
+                }
+            );
 
             return Ok(
                 new NewUserDto
                 {
                     UserName = appUser.UserName!,
                     Email = appUser.Email!,
-                    Token = _tokenService.CreateToken(appUser),
+                    CsrfToken = csrfToken,
                 }
             );
+        }
+
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            Response.Cookies.Delete("jwt");
+            Response.Cookies.Delete("csrfToken");
+
+            return Ok(new { message = "Вы успешно вышли из системы " });
         }
     }
 }

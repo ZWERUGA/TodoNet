@@ -6,6 +6,7 @@ using NSwag;
 using NSwag.Generation.Processors.Security;
 using Todo.Data;
 using Todo.Interfaces;
+using Todo.Middlewares;
 using Todo.Models;
 using Todo.Repository;
 using Todo.Services;
@@ -98,6 +99,18 @@ builder
     })
     .AddJwtBearer(options =>
     {
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                if (context.Request.Cookies.ContainsKey("jwt"))
+                {
+                    context.Token = context.Request.Cookies["jwt"];
+                }
+                return Task.CompletedTask;
+            },
+        };
+
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -132,6 +145,9 @@ app.UseHttpsRedirection();
 app.UseCors("CorsPolicy");
 
 app.UseAuthentication();
+
+app.UseMiddleware<CsrfMiddleware>();
+
 app.UseAuthorization();
 
 app.MapControllers();

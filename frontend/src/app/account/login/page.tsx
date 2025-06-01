@@ -28,7 +28,7 @@ export default function LoginPage() {
 
     try {
       const data = await api.account.login(formData);
-      localStorage.setItem("token", data.token);
+      document.cookie = `csrfToken=${data.csrfToken}; path=/; secure; samesite=string`;
       router.push("/");
     } catch (error: any) {
       setResponseMsg(error.message || "Ошибка входа в систему");
