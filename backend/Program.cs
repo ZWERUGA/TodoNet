@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using NSwag;
 using NSwag.Generation.Processors.Security;
-using Scalar.AspNetCore;
 using Todo.Data;
 using Todo.Interfaces;
 using Todo.Models;
@@ -109,6 +108,8 @@ builder
             IssuerSigningKey = new SymmetricSecurityKey(
                 System.Text.Encoding.UTF8.GetBytes(signingKey)
             ),
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero,
         };
     });
 
