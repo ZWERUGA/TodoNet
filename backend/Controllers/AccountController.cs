@@ -31,6 +31,19 @@ namespace Todo.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
+                // Проверка на существование пользователя с таким именем или email
+                var existingUser = await _userManager.Users.FirstOrDefaultAsync(u =>
+                    u.UserName == registerDto.UserName
+                );
+                if (existingUser is not null)
+                    return BadRequest("Пользователь с таким именем уже существует.");
+
+                var existingEmail = await _userManager.Users.FirstOrDefaultAsync(u =>
+                    u.Email == registerDto.Email
+                );
+                if (existingEmail is not null)
+                    return BadRequest("Пользователь с таким email уже существует.");
+
                 var appUser = new AppUser
                 {
                     UserName = registerDto.UserName,
