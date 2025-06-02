@@ -22,13 +22,14 @@ export default function LoginPage() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
+    if (isSubmitting) return;
+
     e.preventDefault();
     setIsSubmitting(true);
     setResponseMsg("");
 
     try {
-      const data = await api.account.login(formData);
-      document.cookie = `csrfToken=${data.csrfToken}; path=/; secure; samesite=string`;
+      await api.account.login(formData);
       router.push("/");
     } catch (error: any) {
       setResponseMsg(error.message || "Ошибка входа в систему");
@@ -38,16 +39,18 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div className="flex items-center justify-center min-h-screen bg-gray-900">
       <form
         onSubmit={handleSubmit}
         className="bg-white p-8 rounded shadow-md w-full max-w-md space-y-4"
       >
-        <h1 className="text-2xl font-bold mb-4 text-center">Login</h1>
+        <h1 className="text-2xl font-bold mb-4 text-center text-gray-700">
+          Вход в систему
+        </h1>
 
         <div>
           <label className="block text-sm font-medium text-gray-700">
-            User Name
+            Имя пользователя
           </label>
           <input
             type="text"
@@ -55,13 +58,14 @@ export default function LoginPage() {
             value={formData.userName}
             onChange={handleChange}
             required
-            className="mt-1 w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-200"
+            className="mt-1 w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-200 text-gray-700"
+            autoFocus
           />
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700">
-            Password
+            Пароль
           </label>
           <input
             type="password"
@@ -69,14 +73,14 @@ export default function LoginPage() {
             value={formData.password}
             onChange={handleChange}
             required
-            className="mt-1 w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-200"
+            className="mt-1 w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-blue-200 text-gray-700"
           />
         </div>
 
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition"
+          className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition cursor-pointer"
         >
           {isSubmitting ? "Вход..." : "Войти"}
         </button>
