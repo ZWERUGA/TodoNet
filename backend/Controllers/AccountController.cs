@@ -50,7 +50,6 @@ namespace Todo.Controllers
                 var token = _tokenService.CreateToken(appUser);
                 var csrfToken = Guid.NewGuid().ToString();
 
-                // JWT в HttpOnly cookie
                 Response.Cookies.Append(
                     "jwt",
                     token,
@@ -64,7 +63,6 @@ namespace Todo.Controllers
                     }
                 );
 
-                // CSRF токен в доступной cookie
                 Response.Cookies.Append(
                     "csrfToken",
                     csrfToken,
@@ -78,15 +76,7 @@ namespace Todo.Controllers
                     }
                 );
 
-                // Возврат строго типизированного DTO
-                return Ok(
-                    new NewUserDto
-                    {
-                        UserName = appUser.UserName!,
-                        Email = appUser.Email!,
-                        CsrfToken = csrfToken,
-                    }
-                );
+                return Ok(new NewUserDto { UserName = appUser.UserName!, Email = appUser.Email! });
             }
             catch (Exception e)
             {
@@ -120,7 +110,6 @@ namespace Todo.Controllers
 
             var csrfToken = Guid.NewGuid().ToString();
 
-            // HttpOnly cookie для JWT
             Response.Cookies.Append(
                 "jwt",
                 token,
@@ -134,7 +123,6 @@ namespace Todo.Controllers
                 }
             );
 
-            // Доступная из JS cookie для CSRF
             Response.Cookies.Append(
                 "csrfToken",
                 csrfToken,
@@ -148,14 +136,7 @@ namespace Todo.Controllers
                 }
             );
 
-            return Ok(
-                new NewUserDto
-                {
-                    UserName = appUser.UserName!,
-                    Email = appUser.Email!,
-                    CsrfToken = csrfToken,
-                }
-            );
+            return Ok(new NewUserDto { UserName = appUser.UserName!, Email = appUser.Email! });
         }
 
         [HttpPost("logout")]
