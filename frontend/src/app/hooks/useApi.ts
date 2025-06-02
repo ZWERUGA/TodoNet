@@ -52,7 +52,7 @@ export function useApi() {
   return {
     account: {
       register: (data: { userName: string; email: string; password: string }) =>
-        request<{ userName: string; email: string; csrfToken: string }>(
+        request<{ userName: string; email: string; }>(
           API_ENDPOINTS.ACCOUNT.REGISTER,
           {
             method: "POST",
@@ -61,7 +61,7 @@ export function useApi() {
         ),
 
       login: (data: { userName: string; password: string }) =>
-        request<{ userName: string; email: string; csrfToken: string }>(
+        request<{ userName: string; email: string; }>(
           API_ENDPOINTS.ACCOUNT.LOGIN,
           {
             method: "POST",
