@@ -1,7 +1,7 @@
 import { API_ENDPOINTS } from "../endpoints";
-import CreateTodoDto from "../interfaces/createTodoDto";
+import CreateTodoDto from "../interfaces/create-todo-dto";
 import Todo from "../interfaces/todo";
-import UpdateTodoDto from "../interfaces/updateTodoDto";
+import UpdateTodoDto from "../interfaces/update-todo-dto";
 
 function getCsrfToken(): string | null {
   if (typeof document === "undefined") return null;
