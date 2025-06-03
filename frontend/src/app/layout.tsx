@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Roboto_Condensed } from "next/font/google";
 import "./globals.css";
+import { ThemeProvider, useTheme } from "./theme-provider";
 
 const robotoCondensed = Roboto_Condensed({
   variable: "--font-roboto-condensed",
@@ -21,7 +22,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ru" className={robotoCondensed.className}>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <ThemeProvider>{children}</ThemeProvider>
+      </body>
     </html>
   );
 }
