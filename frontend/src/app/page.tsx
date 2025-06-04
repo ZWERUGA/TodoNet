@@ -15,6 +15,34 @@ export default function Home() {
 
   const { theme, toggleTheme } = useTheme();
 
+  const handleToggleComplete = async (id: number) => {
+    const todo = todos.find((t) => t.id === id);
+    if (!todo) return;
+
+    try {
+      const updatedTodo = await api.todos.update(id, {
+        isCompleted: !todo.isCompleted,
+      });
+      setTodos((prev) => prev.map((t) => (t.id === id ? updatedTodo : t)));
+    } catch (err) {
+      console.error(`Ошибка при обновлении задачи: ${err}`);
+    }
+  };
+
+  const handleToggleFavorite = async (id: number) => {
+    const todo = todos.find((t) => t.id === id);
+    if (!todo) return;
+
+    try {
+      const updatedTodo = await api.todos.update(id, {
+        isFavorite: !todo.isFavorite,
+      });
+      setTodos((prev) => prev.map((t) => (t.id === id ? updatedTodo : t)));
+    } catch (err) {
+      console.error(`Ошибка при обновлении задачи: ${err}`);
+    }
+  };
+
   const handleLogout = async () => {
     try {
       await api.account.logout();
@@ -79,9 +107,37 @@ export default function Home() {
               todos.map((todo) => (
                 <li
                   key={todo.id}
-                  className="p-3 bg-gray-50 dark:bg-gray-700 border dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-600 transition"
+                  className="p-3 bg-gray-50 dark:bg-gray-700 border dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-600 transition flex justify-between items-center"
                 >
-                  {todo.text}
+                  <span
+                    className={
+                      todo.isCompleted ? "line-through text-gray-400" : ""
+                    }
+                  >
+                    {todo.text}
+                  </span>
+                  <div className="space-x-2">
+                    <button
+                      onClick={() => handleToggleComplete(todo.id)}
+                      className={`px-2 py-1 text-sm rounded cursor-pointer ${
+                        todo.isCompleted
+                          ? "bg-green-400 text-white hover:bg-green-500"
+                          : "bg-gray-300 text-black hover:bg-gray-400"
+                      }`}
+                    >
+                      ✔
+                    </button>
+                    <button
+                      onClick={() => handleToggleFavorite(todo.id)}
+                      className={`px-2 py-1 text-sm rounded cursor-pointer ${
+                        todo.isFavorite
+                          ? "bg-yellow-400 text-black hover:bg-yellow-500"
+                          : "bg-gray-300 text-black hover:bg-gray-400"
+                      }`}
+                    >
+                      ⭐
+                    </button>
+                  </div>
                 </li>
               ))
             )}
