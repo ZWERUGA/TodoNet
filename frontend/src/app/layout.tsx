@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Roboto_Condensed } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider, useTheme } from "./theme-provider";
+import { ThemeProvider, useTheme } from "./providers/theme-provider";
 
 const robotoCondensed = Roboto_Condensed({
   variable: "--font-roboto-condensed",

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useApi } from "./hooks/useApi";
 import Todo from "./interfaces/todo";
 import { useRouter } from "next/navigation";
-import { useTheme } from "./theme-provider";
+import { useTheme } from "./providers/theme-provider";
 
 export default function Home() {
   const api = useApi();
