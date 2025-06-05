@@ -1,4 +1,4 @@
-import { API_ENDPOINTS } from "../endpoints";
+import { API_ENDPOINTS } from "../constants/endpoints";
 import CreateTodoDto from "../interfaces/create-todo-dto";
 import Todo from "../interfaces/todo";
 import UpdateTodoDto from "../interfaces/update-todo-dto";
