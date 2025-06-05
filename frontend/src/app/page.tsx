@@ -5,6 +5,7 @@ import { useApi } from "./hooks/useApi";
 import Todo from "./interfaces/todo";
 import { useRouter } from "next/navigation";
 import { useTheme } from "./providers/theme-provider";
+import CreateTodoForm from "./components/create-form-todo";
 
 export default function Home() {
   const api = useApi();
@@ -96,6 +97,12 @@ export default function Home() {
 
         {loading && <p>Загрузка данных...</p>}
         {error && <p className="text-red-400">Ошибка: {error}</p>}
+
+        {!loading && (
+          <CreateTodoForm
+            onTodoCreated={(newTodo) => setTodos((prev) => [newTodo, ...prev])}
+          />
+        )}
 
         {!loading && !error && (
           <ul className="space-y-2">
