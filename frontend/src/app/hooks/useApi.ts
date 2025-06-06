@@ -46,13 +46,22 @@ export function useApi() {
 
     if (!response.ok) throw new Error(await response.text());
 
+    const contentLength = response.headers.get("content-length");
+    if (
+      !contentLength ||
+      Number(contentLength) === 0 ||
+      response.status === 204
+    ) {
+      return undefined as T;
+    }
+
     return response.json();
   };
 
   return {
     account: {
       register: (data: { userName: string; email: string; password: string }) =>
-        request<{ userName: string; email: string; }>(
+        request<{ userName: string; email: string }>(
           API_ENDPOINTS.ACCOUNT.REGISTER,
           {
             method: "POST",
@@ -61,7 +70,7 @@ export function useApi() {
         ),
 
       login: (data: { userName: string; password: string }) =>
-        request<{ userName: string; email: string; }>(
+        request<{ userName: string; email: string }>(
           API_ENDPOINTS.ACCOUNT.LOGIN,
           {
             method: "POST",
