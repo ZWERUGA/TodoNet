@@ -6,6 +6,7 @@ import Todo from "./interfaces/todo";
 import { useRouter } from "next/navigation";
 import { useTheme } from "./providers/theme-provider";
 import CreateTodoForm from "./components/create-form-todo";
+import { FaCheck, FaStar, FaTrash } from "react-icons/fa";
 
 export default function Home() {
   const api = useApi();
@@ -41,6 +42,18 @@ export default function Home() {
       setTodos((prev) => prev.map((t) => (t.id === id ? updatedTodo : t)));
     } catch (err) {
       console.error(`Ошибка при обновлении задачи: ${err}`);
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    const todo = todos.find((t) => t.id === id);
+    if (!todo) return;
+
+    try {
+      await api.todos.delete(id);
+      setTodos((prev) => prev.filter((t) => t.id !== id));
+    } catch (err) {
+      console.error(`Ошибка при удалении задачи: ${err}`);
     }
   };
 
@@ -107,43 +120,66 @@ export default function Home() {
         {!loading && !error && (
           <ul className="space-y-2">
             {todos.length === 0 ? (
-              <p className="text-gray-500 dark:text-gray-400">
-                Задачи отсутствуют.
-              </p>
+              <li>
+                <p className="text-gray-500 dark:text-gray-400">
+                  Задачи отсутствуют.
+                </p>
+              </li>
             ) : (
               todos.map((todo) => (
                 <li
                   key={todo.id}
-                  className="p-3 bg-gray-50 dark:bg-gray-700 border dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-600 transition flex justify-between items-center"
+                  className="p-3 bg-gray-50 dark:bg-gray-700 border dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-600 transition"
                 >
-                  <span
-                    className={
-                      todo.isCompleted ? "line-through text-gray-400" : ""
-                    }
-                  >
-                    {todo.text}
-                  </span>
-                  <div className="space-x-2">
-                    <button
-                      onClick={() => handleToggleComplete(todo.id)}
-                      className={`px-2 py-1 text-sm rounded cursor-pointer ${
-                        todo.isCompleted
-                          ? "bg-green-400 text-white hover:bg-green-500"
-                          : "bg-gray-300 text-black hover:bg-gray-400"
-                      }`}
-                    >
-                      ✔
-                    </button>
-                    <button
-                      onClick={() => handleToggleFavorite(todo.id)}
-                      className={`px-2 py-1 text-sm rounded cursor-pointer ${
-                        todo.isFavorite
-                          ? "bg-yellow-400 text-black hover:bg-yellow-500"
-                          : "bg-gray-300 text-black hover:bg-gray-400"
-                      }`}
-                    >
-                      ⭐
-                    </button>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3
+                        className={`text-lg font-semibold ${
+                          todo.isCompleted
+                            ? "line-through text-gray-400"
+                            : "text-gray-800 dark:text-gray-200"
+                        }`}
+                      >
+                        {todo.title}
+                      </h3>
+                      <p
+                        className={
+                          todo.isCompleted
+                            ? "line-through text-gray-400"
+                            : "text-gray-800 dark:text-gray-200"
+                        }
+                      >
+                        {todo.text}
+                      </p>
+                    </div>
+                    <div className="space-x-2">
+                      <button
+                        onClick={() => handleToggleComplete(todo.id)}
+                        className={`px-2 py-2 text-sm rounded cursor-pointer ${
+                          todo.isCompleted
+                            ? "bg-green-400 text-white hover:bg-green-500"
+                            : "bg-gray-300 text-black hover:bg-gray-400"
+                        }`}
+                      >
+                        <FaCheck />
+                      </button>
+                      <button
+                        onClick={() => handleToggleFavorite(todo.id)}
+                        className={`px-2 py-2 text-sm rounded cursor-pointer ${
+                          todo.isFavorite
+                            ? "bg-yellow-600 hover:bg-yellow-600"
+                            : "bg-gray-300 text-black hover:bg-gray-400"
+                        }`}
+                      >
+                        <FaStar />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(todo.id)}
+                        className="px-2 py-2 text-sm rounded cursor-pointer bg-red-500 hover:bg-red-800"
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
                   </div>
                 </li>
               ))
