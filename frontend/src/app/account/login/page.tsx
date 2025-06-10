@@ -1,6 +1,6 @@
 "use client";
 
-import { useApi } from "@/app/hooks/useApi";
+import { useApi } from "@/hooks/useApi";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";

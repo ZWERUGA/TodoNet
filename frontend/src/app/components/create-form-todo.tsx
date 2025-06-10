@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Todo from "../interfaces/todo";
-import { useApi } from "../hooks/useApi";
+import { useApi } from "@/hooks/useApi";
 import CreateTodoDto from "../interfaces/create-todo-dto";
 
 interface Props {
